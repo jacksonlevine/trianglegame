@@ -74,6 +74,11 @@ add_executable(TriangleGame
         src/core/App.h
         src/core/Game.cpp
         src/core/Game.h
+        src/core/Factories.cpp
+        src/core/Factories.h
+        src/comp/Direction.h
+        src/sys/Render.cpp
+        src/sys/Render.h
 )
 
 

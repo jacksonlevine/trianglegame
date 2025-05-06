@@ -10,7 +10,7 @@
 class Game {
 public:
     void init();
-    void input(std::optional<>);
+    void input(std::optional<int> input); //glfw key
     bool logic();
     void render();
 
@@ -23,6 +23,7 @@ private:
 
     std::mt19937 rand;
     State state = State::playing;
+    entt::registry reg;
 };
 
 

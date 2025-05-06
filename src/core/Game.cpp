@@ -3,3 +3,23 @@
 //
 
 #include "Game.h"
+
+#include "Factories.h"
+
+void Game::init()
+{
+    rand.seed(std::random_device{}());
+    makeTriGuy(reg);
+}
+
+void Game::input(std::optional<int> input)
+{
+}
+
+bool Game::logic()
+{
+}
+
+void Game::render()
+{
+}
