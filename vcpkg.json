@@ -1,0 +1,17 @@
+{
+    "name": "trianglegame",
+    "version": "0.0.0",
+    "builtin-baseline": "96b5ced82828ecaf67e6010a892c98d3e96ed1c2",
+    "dependencies": [ "glfw3", "glm", "glew", "tinygltf", "libsndfile", 
+        {
+            "name": "imgui",
+            "features": [ "glfw-binding", "opengl3-binding" ]
+        },
+        "physx",
+        "openal-soft",
+        "entt",
+        "cereal",
+        "tbb",
+        "rapidcheck"
+    ]
+}
