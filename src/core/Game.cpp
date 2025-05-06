@@ -5,6 +5,7 @@
 #include "Game.h"
 
 #include "Factories.h"
+#include "../sys/Render.h"
 
 void Game::init()
 {
@@ -22,4 +23,5 @@ bool Game::logic()
 
 void Game::render()
 {
+    renderTriGuys(reg);
 }

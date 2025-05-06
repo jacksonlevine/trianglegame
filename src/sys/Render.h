@@ -7,6 +7,8 @@
 
 #include "../PrecompHeader.h"
 
+void renderBackground(entt::registry &reg);
+
 void renderTriGuys(entt::registry &reg);
 
 #endif //RENDER_H

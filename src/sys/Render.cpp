@@ -6,4 +6,11 @@
 
 void renderTriGuys(entt::registry& reg)
 {
+
+}
+
+
+void renderBackground(entt::registry &reg)
+{
+
 }
