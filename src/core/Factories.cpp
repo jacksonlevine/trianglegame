@@ -4,17 +4,20 @@
 
 #include "Factories.h"
 
+#include "../Camera.h"
 #include "../comp/AnimState.h"
 #include "../comp/Direction.h"
 #include "../comp/Position.h"
 #include "../comp/TriGuy.h"
+#include "../util/DirHelpers.h"
 
 
-entt::entity makeTriGuy(entt::registry& reg)
+entt::entity makeTriGuy(entt::registry& reg, const glm::vec2& pos, float heading)
 {
     const entt::entity e = reg.create();
     reg.emplace<TriGuy>(e);
-    reg.emplace<Direction>(e);
-    reg.emplace<Position>(e);
-    reg.emplace<AnimState>(e);
+    reg.emplace<Direction>(e, heading, headingToDirection(heading));
+    reg.emplace<Position>(e, pos);
+    reg.emplace<AnimState>(e, DANCE);
+    return e;
 }

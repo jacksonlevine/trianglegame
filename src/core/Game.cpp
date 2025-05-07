@@ -10,7 +10,19 @@
 void Game::init()
 {
     rand.seed(std::random_device{}());
-    makeTriGuy(reg);
+
+    std::uniform_real_distribution<float> distrib(-1.0f, 1.0f);
+    std::uniform_real_distribution<float> hdistrib(0.0f, 0.9999f);
+    for (int i = 0; i < 100; i++)
+    {
+        float x = distrib(rand);
+        float y = distrib(rand);
+        float heading = hdistrib(rand);
+
+        makeTriGuy(reg, glm::vec2(x,y), heading);
+    }
+
+
 }
 
 void Game::input(std::optional<int> input)
@@ -19,9 +31,11 @@ void Game::input(std::optional<int> input)
 
 bool Game::logic()
 {
+    return true;
 }
 
 void Game::render()
 {
+    renderBackground(reg);
     renderTriGuys(reg);
 }

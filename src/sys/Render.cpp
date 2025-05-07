@@ -4,13 +4,227 @@
 
 #include "Render.h"
 
+#include "../Shader.h"
+#include "../Texture.h"
+#include "../comp/AnimState.h"
+#include "../comp/Direction.h"
+#include "../comp/Position.h"
+#include "../comp/TriGuy.h"
+
 void renderTriGuys(entt::registry& reg)
 {
+    static jl::Shader shader(
+    R"glsl(
+
+#version 330 core
+layout(location = 0) in vec2 aPos;
+layout(location = 1) in vec2 aTexCoord;
+
+
+layout(location = 2) in vec2 instancePos;
+layout(location = 3) in float anim;
+layout(location = 4) in float heading;
+
+uniform float time;
+
+out vec2 vTexCoord;
+
+void main() {
+
+    int framenum = int(mod(time*60.0, 60.0));
+    float xUvOffset = float(framenum) / 60.0;
+    float yUvOffset = -1.0 * (floor(heading * 16.0) / 16.0);
+
+    gl_Position = vec4(aPos + instancePos, 0.0, 1.0);
+    vTexCoord = aTexCoord + vec2(xUvOffset, yUvOffset);
+}
+
+        )glsl",
+    R"glsl(
+
+#version 330 core
+in vec2 vTexCoord;
+out vec4 FragColor;
+
+uniform sampler2D uTexture;
+
+
+void main() {
+    FragColor = texture(uTexture, vTexCoord);
+}
+
+        )glsl",
+    "triGuyShader"
+    );
+
+    static GLuint vao = 0;
+    static GLuint basevbo = 0;
+    static GLuint instancesvbo = 0;
+
+    if (vao == 0)
+    {
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+
+        glGenBuffers(1, &basevbo);
+        glGenBuffers(1, &instancesvbo);
+
+        float halfwidth = 0.06f;
+        static std::vector<float> baseVertices = {
+            -halfwidth, +halfwidth,     0.0f,  15.0f/16.0f,
+            -halfwidth, -halfwidth,     0.0f,  1.0f,
+            +halfwidth, -halfwidth,     1.0f/60.0f,  1.0f,
+
+            +halfwidth, -halfwidth,     1.0f/60.0f,  1.0f,
+            +halfwidth, +halfwidth,     1.0f/60.0f,  15.0f/16.0f,
+            -halfwidth, +halfwidth,     0.0f,  15.0f/16.0f,
+        };
+
+        glBindBuffer(GL_ARRAY_BUFFER, basevbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * baseVertices.size(), baseVertices.data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+    } else
+    [[likely]]{
+        glBindVertexArray(vao);
+    }
+    glUseProgram(shader.shaderID);
+
+
+    struct TriGuyInstance
+    {
+        glm::vec2 pos;
+        float anim;
+        float heading;
+    };
+
+    static std::vector<TriGuyInstance> instances = {};
+
+    instances.clear();
+
+    const auto view = reg.view<TriGuy, Position, AnimState, Direction>();
+    for (const auto entity : view)
+    {
+        const auto [animname] = view.get<AnimState>(entity);
+        const auto [heading, direction] = view.get<Direction>(entity);
+        const auto [position] = view.get<Position>(entity);
+        instances.push_back(TriGuyInstance{
+            .pos = position,
+            .anim = static_cast<float>(animname),
+            .heading = heading});
+    }
+
+    std::sort(instances.begin(), instances.end(), [](const TriGuyInstance& lhs, const TriGuyInstance& rhs)
+    {
+        return lhs.pos.y > rhs.pos.y;
+    });
+
+    glBindBuffer(GL_ARRAY_BUFFER, instancesvbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(TriGuyInstance) * instances.size(), instances.data(), GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TriGuyInstance), (void*)0);
+    glEnableVertexAttribArray(2);
+    glVertexAttribDivisor(2, 1);
+
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(TriGuyInstance), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+    glVertexAttribDivisor(3, 1);
+
+    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(TriGuyInstance), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(4);
+    glVertexAttribDivisor(4, 1);
+
+    static jl::Texture texture("resourcestoembed/triguy.png");
+
+    static GLuint timeloc = glGetUniformLocation(shader.shaderID, "time");
+    static GLuint texloc = glGetUniformLocation(shader.shaderID, "uTexture");
+    glUniform1f(timeloc, glfwGetTime());
+
+    texture.bind_to_unit(0);
+    glUniform1i(texloc, 0);
+
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instances.size());
 
 }
 
 
 void renderBackground(entt::registry &reg)
 {
+    static jl::Texture texture("resourcestoembed/grass.png");
+    static jl::Shader shader(
+        R"glsl(
+#version 330 core
+layout(location = 0) in vec2 aPos;
+layout(location = 1) in vec2 aTexCoord;
+
+out vec2 vTexCoord;
+
+void main() {
+
+    gl_Position = vec4(aPos, 0.0, 1.0);
+    vTexCoord = aTexCoord;
+}
+        )glsl",
+        R"glsl(
+#version 330 core
+in vec2 vTexCoord;
+out vec4 FragColor;
+
+uniform sampler2D uTexture;
+
+void main() {
+    FragColor = texture(uTexture, vTexCoord);
+}
+        )glsl",
+        "backgroundShader");
+
+    glUseProgram(shader.shaderID);
+
+    static GLuint vao = 0;
+    static GLuint vbo = 0;
+
+    if (vao == 0)
+    {
+
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+        glGenBuffers(1, &vbo);
+
+    } else
+    {
+        glBindVertexArray(vao);
+    }
+
+    static int lastw = 0;
+    static int lasth = 0;
+    if (lastw != SWIDTH || lasth != SHEIGHT)
+    {
+        lastw = SWIDTH;
+        lasth = SHEIGHT;
+        static std::vector<float> baseVertices = {
+            -1.f, -1.f,     0.f, 0.f,
+            -1.f, 1.f,     0.f, (float)SHEIGHT / 300.0f,
+            1.f, 1.f,       (float)SWIDTH / 500.0f, (float)SHEIGHT / 300.0f,
+
+            1.f, 1.f,       (float)SWIDTH / 500.0f, (float)SHEIGHT / 300.0f,
+            1.f, -1.f,       (float)SWIDTH / 500.0f, 0.f,
+            -1.f, -1.f,     0.f, 0.f,
+        };
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * baseVertices.size(), baseVertices.data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+    }
+
+    static GLuint texloc = glGetUniformLocation(shader.shaderID, "uTexture");
+    texture.bind_to_unit(0);
+    glUniform1i(texloc, 0);
+
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
 }

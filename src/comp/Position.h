@@ -8,7 +8,7 @@
 #include "../PrecompHeader.h"
 
 struct Position {
-    glm::vec3 position;
+    glm::vec2 position;
 };
 
 #endif //POSITION_H

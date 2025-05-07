@@ -1,7 +1,18 @@
 
 
+
+
 #include "PrecompHeader.h"
 #include "core/App.h"
+
+int SWIDTH = 1024;
+int SHEIGHT = 1024;
+
+
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "tiny_gltf.h"
 
 int main() {
     try {

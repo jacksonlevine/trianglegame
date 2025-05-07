@@ -79,6 +79,7 @@ add_executable(TriangleGame
         src/comp/Direction.h
         src/sys/Render.cpp
         src/sys/Render.h
+        src/util/DirHelpers.h
 )
 
 

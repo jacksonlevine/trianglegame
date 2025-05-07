@@ -8,7 +8,7 @@
 #include "../PrecompHeader.h"
 
 
-entt::entity makeTriGuy(entt::registry& reg);
+entt::entity makeTriGuy(entt::registry& reg, const glm::vec2& pos, float heading);
 
 
 

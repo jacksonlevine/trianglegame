@@ -6,7 +6,8 @@
 #define DIRECTION_H
 
 struct Direction {
-    float dir;
+    float heading;
+    glm::vec2 direction;
 };
 
 #endif //DIRECTION_H

@@ -4,7 +4,7 @@
 
 #ifndef GAME_H
 #define GAME_H
-
+#include "../Camera.h"
 
 
 class Game {
@@ -24,6 +24,7 @@ private:
     std::mt19937 rand;
     State state = State::playing;
     entt::registry reg;
+    jl::Camera camera;
 };
 
 

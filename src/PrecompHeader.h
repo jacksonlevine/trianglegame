@@ -47,4 +47,8 @@
 #include <tbb/tbb.h>
 #include <tbb/concurrent_unordered_set.h>
 
+
+extern int SWIDTH;
+extern int SHEIGHT;
+
 #endif //PRECOMPHEADER_H
