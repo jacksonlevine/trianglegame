@@ -47,6 +47,9 @@ void Game::render()
 
     aDeltaTime = deltaTime;
 
+    //update the cameras view with its current position etc
+    camera.updateWithYawPitch(camera.transform.yaw, camera.transform.pitch);
+    
     renderBackground(reg, camera);
     doTriBehaviors(reg, deltaTime, rand);
     renderTriGuys(reg, camera);
