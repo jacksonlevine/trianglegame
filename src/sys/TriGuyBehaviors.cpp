@@ -17,8 +17,8 @@ void doTriBehaviors(entt::registry& registry, float deltaTime, std::mt19937& rng
     {
         //Wander the wanderers
         const auto view = registry.view<TriGuy, Wandering, Position>();
-        auto dist = std::uniform_real_distribution<float>(1.0f, 10.0f);
-        auto movedist = std::uniform_real_distribution<float>(-0.2f, 0.2f);
+        auto dist = std::uniform_real_distribution<float>(1.0f, 15.0f);
+        auto movedist = std::uniform_real_distribution<float>(-5.0f, 5.0f);
 
         for (auto entity : view)
         {
@@ -59,7 +59,7 @@ void doTriBehaviors(entt::registry& registry, float deltaTime, std::mt19937& rng
             auto & position = view.get<Position>(entity);
             auto & animState = view.get<AnimState>(entity);
             auto & direction = view.get<Direction>(entity);
-            if (glm::distance(focusPoint.point, position.position) < 0.1f)
+            if (glm::distance(focusPoint.point, position.position) < 0.5f)
             {
                 animState.animname = IDLE;
             } else
@@ -68,7 +68,7 @@ void doTriBehaviors(entt::registry& registry, float deltaTime, std::mt19937& rng
                 animState.animname = WALK;
                 direction.direction = newdir;
                 direction.heading = directionToHeading(newdir);
-                position.position = position.position + (newdir*deltaTime*0.1f);
+                position.position = position.position + (newdir*deltaTime*2.0f);
             }
         }
     }
@@ -82,7 +82,7 @@ void doTriBehaviors(entt::registry& registry, float deltaTime, std::mt19937& rng
             auto & position = view.get<Position>(entity);
             auto & animState = view.get<AnimState>(entity);
             auto & direction = view.get<Direction>(entity);
-            if (glm::distance(focusPoint.point, position.position) < 0.2f)
+            if (glm::distance(focusPoint.point, position.position) < 3.0f)
             {
                 animState.animname = DANCE;
             } else
@@ -91,7 +91,7 @@ void doTriBehaviors(entt::registry& registry, float deltaTime, std::mt19937& rng
                 animState.animname = WALK;
                 direction.direction = newdir;
                 direction.heading = directionToHeading(newdir);
-                position.position = position.position + (newdir*deltaTime*0.1f);
+                position.position = position.position + (newdir*deltaTime*2.0f);
             }
         }
     }
