@@ -6,6 +6,7 @@
 
 #include "Factories.h"
 #include "../sys/Render.h"
+#include "../sys/TriGuyBehaviors.h"
 
 void Game::init()
 {
@@ -36,6 +37,11 @@ bool Game::logic()
 
 void Game::render()
 {
+    static auto currenttime = glfwGetTime();
+    auto deltaTime = glfwGetTime() - currenttime;
+    currenttime = glfwGetTime();
+
     renderBackground(reg);
+    doTriBehaviors(reg, deltaTime, rand);
     renderTriGuys(reg);
 }
