@@ -72,20 +72,9 @@ void main() {
         glGenBuffers(1, &basevbo);
         glGenBuffers(1, &instancesvbo);
 
-    } else
-    [[likely]]{
-        glBindVertexArray(vao);
-    }
 
-    static int lastswidth = 0;
-    static int lastsheight = 0;
-    if (lastswidth != SWIDTH || lastsheight != SHEIGHT)
-    {
-        lastswidth = SWIDTH;
-        lastsheight = SHEIGHT;
-
-        float halfheight = 70.0f/SHEIGHT;
-        float halfwidth = 70.0f/SWIDTH;
+        float halfheight = 1.0f;
+        float halfwidth = 1.0f;
 
         static std::vector<float> baseVertices = {
             -halfwidth, +halfheight,     0.0f,  15.0f/16.0f,
@@ -103,7 +92,15 @@ void main() {
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+    } else
+    [[likely]]{
+        glBindVertexArray(vao);
     }
+
+
+        
+    
 
     glUseProgram(shader.shaderID);
 
@@ -229,14 +226,19 @@ void main() {
 
         auto uvheight = (float)SHEIGHT / 1024.0f;
         auto uvwidth = (float)SWIDTH / 1024.0f;
-        static std::vector<float> baseVertices = {
-            -1.f, -1.f,     -uvwidth/2.f, -uvheight/2.f,
-            -1.f, 1.f,     -uvwidth/2.f, uvheight/2.f,
-            1.f, 1.f,       uvwidth/2.f, uvheight/2.f,
 
-            1.f, 1.f,       uvwidth/2.f, uvheight/2.f,
-            1.f, -1.f,       uvwidth/2.f, -uvheight/2.f,
-            -1.f, -1.f,     -uvwidth/2.f, -uvheight/2.f,
+
+        //We will have to figure out something to always have background in front of the camera. This is just for now
+        auto halfbackgroundheight = 100.0f;
+        
+        static std::vector<float> baseVertices = {
+            -halfbackgroundheight, -halfbackgroundheight,     -uvwidth/2.f, -uvheight/2.f,
+            -halfbackgroundheight, halfbackgroundheight,     -uvwidth/2.f, uvheight/2.f,
+            halfbackgroundheight, halfbackgroundheight,       uvwidth/2.f, uvheight/2.f,
+
+            halfbackgroundheight, halfbackgroundheight,       uvwidth/2.f, uvheight/2.f,
+            halfbackgroundheight, -halfbackgroundheight,       uvwidth/2.f, -uvheight/2.f,
+            -halfbackgroundheight, -halfbackgroundheight,     -uvwidth/2.f, -uvheight/2.f,
         };
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * baseVertices.size(), baseVertices.data(), GL_STATIC_DRAW);
