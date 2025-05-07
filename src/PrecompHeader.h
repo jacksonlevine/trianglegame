@@ -51,4 +51,9 @@
 extern int SWIDTH;
 extern int SHEIGHT;
 
+extern float globalScale;
+extern glm::vec2 globalOffset;
+
+extern float aDeltaTime;
+
 #endif //PRECOMPHEADER_H

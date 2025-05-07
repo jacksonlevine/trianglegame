@@ -28,6 +28,7 @@ void Game::init()
 
 void Game::input(std::optional<int> input)
 {
+
 }
 
 bool Game::logic()
@@ -40,6 +41,8 @@ void Game::render()
     static auto currenttime = glfwGetTime();
     auto deltaTime = glfwGetTime() - currenttime;
     currenttime = glfwGetTime();
+
+    aDeltaTime = deltaTime;
 
     renderBackground(reg);
     doTriBehaviors(reg, deltaTime, rand);

@@ -27,6 +27,8 @@ layout(location = 3) in float anim;
 layout(location = 4) in float heading;
 
 uniform float time;
+uniform float scale;
+uniform vec2 offset;
 
 out vec2 vTexCoord;
 out float animindex;
@@ -36,7 +38,7 @@ void main() {
     float xUvOffset = float(framenum) / 60.0;
     float yUvOffset = -1.0 * (floor(heading * 16.0) / 16.0);
     animindex = anim;
-    gl_Position = vec4(aPos + instancePos, 0.0, 1.0);
+    gl_Position = vec4((aPos + instancePos - offset) * scale, 0.0, 1.0);
     vTexCoord = aTexCoord + vec2(xUvOffset, yUvOffset);
 }
 
@@ -83,8 +85,9 @@ void main() {
         lastswidth = SWIDTH;
         lastsheight = SHEIGHT;
 
-        float halfheight = 210.0f/SHEIGHT;
-        float halfwidth = 210.0f/SWIDTH;
+        float halfheight = 70.0f/SHEIGHT;
+        float halfwidth = 70.0f/SWIDTH;
+
         static std::vector<float> baseVertices = {
             -halfwidth, +halfheight,     0.0f,  15.0f/16.0f,
             -halfwidth, -halfheight,     0.0f,  1.0f,
@@ -155,7 +158,13 @@ void main() {
 
     static GLuint timeloc = glGetUniformLocation(shader.shaderID, "time");
     static GLuint texloc = glGetUniformLocation(shader.shaderID, "uTexture");
+
+    static GLuint offsetloc = glGetUniformLocation(shader.shaderID, "offset");
+    static GLuint scaleloc = glGetUniformLocation(shader.shaderID, "scale");
+
     glUniform1f(timeloc, glfwGetTime());
+    glUniform2f(offsetloc, globalOffset.x, globalOffset.y);
+    glUniform1f(scaleloc, globalScale);
 
     texture.bind(0);
     glUniform1i(texloc, 0);
@@ -175,11 +184,13 @@ layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aTexCoord;
 
 out vec2 vTexCoord;
+uniform float scale;
+uniform vec2 offset;
 
 void main() {
 
     gl_Position = vec4(aPos, 0.0, 1.0);
-    vTexCoord = aTexCoord;
+   vTexCoord = (aTexCoord + (offset)) / scale;
 }
         )glsl",
         R"glsl(
@@ -191,6 +202,13 @@ uniform sampler2D uTexture;
 
 void main() {
     FragColor = texture(uTexture, vTexCoord);
+
+// Debug output: Red if UVs are out of bounds, Green if aligned
+if (vTexCoord.x < 0.0 || vTexCoord.x > 1.0 || vTexCoord.y < 0.0 || vTexCoord.y > 1.0) {
+    FragColor = vec4(1.0, 0.0, 0.0, 1.0); // UVs drifting (RED)
+} else {
+    FragColor = vec4(0.0, 1.0, 0.0, 1.0); // UVs locked (GREEN)
+}
 }
         )glsl",
         "backgroundShader");
@@ -218,14 +236,17 @@ void main() {
     {
         lastw = SWIDTH;
         lasth = SHEIGHT;
-        static std::vector<float> baseVertices = {
-            -1.f, -1.f,     0.f, 0.f,
-            -1.f, 1.f,     0.f, (float)SHEIGHT / 300.0f,
-            1.f, 1.f,       (float)SWIDTH / 500.0f, (float)SHEIGHT / 300.0f,
 
-            1.f, 1.f,       (float)SWIDTH / 500.0f, (float)SHEIGHT / 300.0f,
-            1.f, -1.f,       (float)SWIDTH / 500.0f, 0.f,
-            -1.f, -1.f,     0.f, 0.f,
+        auto uvheight = (float)SHEIGHT / 1024.0f;
+        auto uvwidth = (float)SWIDTH / 1024.0f;
+        static std::vector<float> baseVertices = {
+            -1.f, -1.f,     -uvwidth/2.f, -uvheight/2.f,
+            -1.f, 1.f,     -uvwidth/2.f, uvheight/2.f,
+            1.f, 1.f,       uvwidth/2.f, uvheight/2.f,
+
+            1.f, 1.f,       uvwidth/2.f, uvheight/2.f,
+            1.f, -1.f,       uvwidth/2.f, -uvheight/2.f,
+            -1.f, -1.f,     -uvwidth/2.f, -uvheight/2.f,
         };
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * baseVertices.size(), baseVertices.data(), GL_STATIC_DRAW);
@@ -236,10 +257,12 @@ void main() {
     }
 
     static GLuint texloc = glGetUniformLocation(shader.shaderID, "uTexture");
+    static GLuint scaleloc = glGetUniformLocation(shader.shaderID, "scale");
+    static GLuint offsetloc = glGetUniformLocation(shader.shaderID, "offset");
     texture.bind_to_unit(0);
     glUniform1i(texloc, 0);
-
-
+    glUniform1f(scaleloc, globalScale);
+    glUniform2f(offsetloc, globalOffset.x, globalOffset.y);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
 }
