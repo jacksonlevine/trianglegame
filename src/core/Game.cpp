@@ -23,7 +23,10 @@ void Game::init()
         makeTriGuy(reg, glm::vec2(x,y), heading);
     }
 
-
+    //initialize 3d camera facing game surface (surface spans XY, toward the camera Z, away -Z)
+    camera.transform.position = glm::vec3(0, 0, 20);
+    camera.updateProjection(SWIDTH, SHEIGHT, 90.0f);
+    camera.updateWithYawPitch(0.0f, -89.9f)
 }
 
 void Game::input(std::optional<int> input)
