@@ -71,15 +71,28 @@ void main() {
         glGenBuffers(1, &basevbo);
         glGenBuffers(1, &instancesvbo);
 
-        float halfwidth = 0.06f;
-        static std::vector<float> baseVertices = {
-            -halfwidth, +halfwidth,     0.0f,  15.0f/16.0f,
-            -halfwidth, -halfwidth,     0.0f,  1.0f,
-            +halfwidth, -halfwidth,     1.0f/60.0f,  1.0f,
+    } else
+    [[likely]]{
+        glBindVertexArray(vao);
+    }
 
-            +halfwidth, -halfwidth,     1.0f/60.0f,  1.0f,
-            +halfwidth, +halfwidth,     1.0f/60.0f,  15.0f/16.0f,
-            -halfwidth, +halfwidth,     0.0f,  15.0f/16.0f,
+    static int lastswidth = 0;
+    static int lastsheight = 0;
+    if (lastswidth != SWIDTH || lastsheight != SHEIGHT)
+    {
+        lastswidth = SWIDTH;
+        lastsheight = SHEIGHT;
+
+        float halfheight = 210.0f/SHEIGHT;
+        float halfwidth = 210.0f/SWIDTH;
+        static std::vector<float> baseVertices = {
+            -halfwidth, +halfheight,     0.0f,  15.0f/16.0f,
+            -halfwidth, -halfheight,     0.0f,  1.0f,
+            +halfwidth, -halfheight,     1.0f/60.0f,  1.0f,
+
+            +halfwidth, -halfheight,     1.0f/60.0f,  1.0f,
+            +halfwidth, +halfheight,     1.0f/60.0f,  15.0f/16.0f,
+            -halfwidth, +halfheight,     0.0f,  15.0f/16.0f,
         };
 
         glBindBuffer(GL_ARRAY_BUFFER, basevbo);
@@ -88,13 +101,9 @@ void main() {
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
         glEnableVertexAttribArray(1);
-
-    } else
-    [[likely]]{
-        glBindVertexArray(vao);
     }
-    glUseProgram(shader.shaderID);
 
+    glUseProgram(shader.shaderID);
 
     struct TriGuyInstance
     {
