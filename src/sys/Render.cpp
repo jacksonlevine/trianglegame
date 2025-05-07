@@ -6,6 +6,7 @@
 
 #include "../Shader.h"
 #include "../Texture.h"
+#include "../Texture2DArray.h"
 #include "../comp/AnimState.h"
 #include "../comp/Direction.h"
 #include "../comp/Position.h"
@@ -16,7 +17,7 @@ void renderTriGuys(entt::registry& reg)
     static jl::Shader shader(
     R"glsl(
 
-#version 330 core
+#version 450 core
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aTexCoord;
 
@@ -28,13 +29,13 @@ layout(location = 4) in float heading;
 uniform float time;
 
 out vec2 vTexCoord;
-
+out float animindex;
 void main() {
 
     int framenum = int(mod(time*60.0, 60.0));
     float xUvOffset = float(framenum) / 60.0;
     float yUvOffset = -1.0 * (floor(heading * 16.0) / 16.0);
-
+    animindex = anim;
     gl_Position = vec4(aPos + instancePos, 0.0, 1.0);
     vTexCoord = aTexCoord + vec2(xUvOffset, yUvOffset);
 }
@@ -42,15 +43,16 @@ void main() {
         )glsl",
     R"glsl(
 
-#version 330 core
+#version 450 core
 in vec2 vTexCoord;
+in float animindex;
 out vec4 FragColor;
 
-uniform sampler2D uTexture;
+uniform sampler2DArray uTexture;
 
 
 void main() {
-    FragColor = texture(uTexture, vTexCoord);
+    FragColor = texture(uTexture, vec3(vTexCoord, int(animindex)));
 }
 
         )glsl",
@@ -136,13 +138,17 @@ void main() {
     glEnableVertexAttribArray(4);
     glVertexAttribDivisor(4, 1);
 
-    static jl::Texture texture("resourcestoembed/triguy.png");
+    std::vector<std::string> textures = {
+    "resourcestoembed/triguy.png",
+    "resourcestoembed/triguy2.png",
+    "resourcestoembed/triguy3.png"};
+    static jl::Texture2DArray texture(textures);
 
     static GLuint timeloc = glGetUniformLocation(shader.shaderID, "time");
     static GLuint texloc = glGetUniformLocation(shader.shaderID, "uTexture");
     glUniform1f(timeloc, glfwGetTime());
 
-    texture.bind_to_unit(0);
+    texture.bind(0);
     glUniform1i(texloc, 0);
 
     glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instances.size());
@@ -155,7 +161,7 @@ void renderBackground(entt::registry &reg)
     static jl::Texture texture("resourcestoembed/grass.png");
     static jl::Shader shader(
         R"glsl(
-#version 330 core
+#version 450 core
 layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aTexCoord;
 
@@ -168,7 +174,7 @@ void main() {
 }
         )glsl",
         R"glsl(
-#version 330 core
+#version 450 core
 in vec2 vTexCoord;
 out vec4 FragColor;
 

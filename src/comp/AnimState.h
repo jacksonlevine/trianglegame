@@ -9,7 +9,9 @@
 
 enum AnimName : uint8_t
 {
-    DANCE
+    DANCE,
+    IDLE,
+    WALK
 };
 
 struct AnimState {
