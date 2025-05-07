@@ -6,9 +6,10 @@
 #define RENDER_H
 
 #include "../PrecompHeader.h"
+#include "../Camera.h"
 
-void renderBackground(entt::registry &reg);
+void renderBackground(entt::registry &reg, const jl::Camera& cam);
 
-void renderTriGuys(entt::registry &reg);
+void renderTriGuys(entt::registry &reg, const jl::Camera& cam);
 
 #endif //RENDER_H
