@@ -12,7 +12,7 @@
 #include "../comp/Position.h"
 #include "../comp/TriGuy.h"
 
-void renderTriGuys(entt::registry& reg)
+void renderTriGuys(entt::registry& reg, const jl::Camera& cam)
 {
     static jl::Shader shader(
     R"glsl(
@@ -27,8 +27,7 @@ layout(location = 3) in float anim;
 layout(location = 4) in float heading;
 
 uniform float time;
-uniform float scale;
-uniform vec2 offset;
+uniform mat4 mvp;
 
 out vec2 vTexCoord;
 out float animindex;
@@ -38,7 +37,7 @@ void main() {
     float xUvOffset = float(framenum) / 60.0;
     float yUvOffset = -1.0 * (floor(heading * 16.0) / 16.0);
     animindex = anim;
-    gl_Position = vec4((aPos + instancePos - offset) * scale, 0.0, 1.0);
+    gl_Position = mvp * vec4(aPos + instancePos, 0.05, 1.0);
     vTexCoord = aTexCoord + vec2(xUvOffset, yUvOffset);
 }
 
@@ -158,13 +157,11 @@ void main() {
 
     static GLuint timeloc = glGetUniformLocation(shader.shaderID, "time");
     static GLuint texloc = glGetUniformLocation(shader.shaderID, "uTexture");
+    static GLuint mvploc = glGetUniformLocation(shader.shaderID, "mvp");
 
-    static GLuint offsetloc = glGetUniformLocation(shader.shaderID, "offset");
-    static GLuint scaleloc = glGetUniformLocation(shader.shaderID, "scale");
+    glUniformMatrix4fv(mvploc, glm::value_ptr(cam.mvp));
 
     glUniform1f(timeloc, glfwGetTime());
-    glUniform2f(offsetloc, globalOffset.x, globalOffset.y);
-    glUniform1f(scaleloc, globalScale);
 
     texture.bind(0);
     glUniform1i(texloc, 0);
@@ -174,7 +171,7 @@ void main() {
 }
 
 
-void renderBackground(entt::registry &reg)
+void renderBackground(entt::registry &reg, const jl::Camera& cam)
 {
     static jl::Texture texture("resourcestoembed/grass.png");
     static jl::Shader shader(
@@ -184,13 +181,13 @@ layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aTexCoord;
 
 out vec2 vTexCoord;
-uniform float scale;
-uniform vec2 offset;
+
+uniform mat4 mvp;
 
 void main() {
 
-    gl_Position = vec4(aPos, 0.0, 1.0);
-   vTexCoord = ((aTexCoord+ (offset * 0.5)) / scale);
+    gl_Position = mvp * vec4(aPos, 0.0, 1.0);
+   vTexCoord = aTexCoord;
 }
         )glsl",
         R"glsl(
@@ -202,13 +199,6 @@ uniform sampler2D uTexture;
 
 void main() {
     FragColor = texture(uTexture, vTexCoord);
-
-// Debug output: Red if UVs are out of bounds, Green if aligned
-if (vTexCoord.x < 0.0 || vTexCoord.x > 1.0 || vTexCoord.y < 0.0 || vTexCoord.y > 1.0) {
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0); // UVs drifting (RED)
-} else {
-    FragColor = vec4(0.0, 1.0, 0.0, 1.0); // UVs locked (GREEN)
-}
 }
         )glsl",
         "backgroundShader");
@@ -257,12 +247,13 @@ if (vTexCoord.x < 0.0 || vTexCoord.x > 1.0 || vTexCoord.y < 0.0 || vTexCoord.y >
     }
 
     static GLuint texloc = glGetUniformLocation(shader.shaderID, "uTexture");
-    static GLuint scaleloc = glGetUniformLocation(shader.shaderID, "scale");
-    static GLuint offsetloc = glGetUniformLocation(shader.shaderID, "offset");
+    static GLuint mvploc = glGetUniformLocation(shader.shaderID, "mvp");
+
+    glUniformMatrix4fv(mvploc, glm::value_ptr(cam.mvp));
+    
     texture.bind_to_unit(0);
     glUniform1i(texloc, 0);
-    glUniform1f(scaleloc, globalScale);
-    glUniform2f(offsetloc, globalOffset.x, globalOffset.y);
+    
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
 }
