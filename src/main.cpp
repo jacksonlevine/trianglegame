@@ -8,10 +8,6 @@
 int SWIDTH = 1024;
 int SHEIGHT = 1024;
 
-
-float globalScale = 1.0f;
-glm::vec2 globalOffset = glm::vec2(0.f);
-
 float aDeltaTime = 0.0f;
 
 #define TINYGLTF_IMPLEMENTATION
