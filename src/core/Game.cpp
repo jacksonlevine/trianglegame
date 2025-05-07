@@ -47,7 +47,7 @@ void Game::render()
 
     aDeltaTime = deltaTime;
 
-    renderBackground(reg);
+    renderBackground(reg, camera);
     doTriBehaviors(reg, deltaTime, rand);
-    renderTriGuys(reg);
+    renderTriGuys(reg, camera);
 }
