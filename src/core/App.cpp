@@ -31,19 +31,23 @@ enum class INPUTS : uint8_t {
 };
 void K_C(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+
     static std::bitset<4> inputs(0);
     if(key == GLFW_KEY_A)
     {
         inputs[(int)INPUTS::LEFT] = action ? 1 : 0;
     }
+
     if(key == GLFW_KEY_D)
     {
         inputs[(int)INPUTS::RIGHT] = action ? 1 : 0;
     }
+
     if(key == GLFW_KEY_W)
     {
         inputs[(int)INPUTS::UP] = action ? 1 : 0;
     }
+
     if(key == GLFW_KEY_S)
     {
         inputs[(int)INPUTS::DOWN] = action ? 1 : 0;
