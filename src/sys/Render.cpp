@@ -53,7 +53,7 @@ uniform sampler2DArray uTexture;
 
 
 void main() {
-    FragColor = texture(uTexture, vec3(vTexCoord, int(animindex)));
+    FragColor = texture(uTexture, vec3(vTexCoord, int(round(animindex))));
 }
 
         )glsl",
@@ -133,7 +133,7 @@ void main() {
     });
 
     glBindBuffer(GL_ARRAY_BUFFER, instancesvbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(TriGuyInstance) * instances.size(), instances.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(TriGuyInstance) * instances.size(), instances.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TriGuyInstance), (void*)0);
     glEnableVertexAttribArray(2);
     glVertexAttribDivisor(2, 1);
@@ -156,7 +156,7 @@ void main() {
     static GLuint texloc = glGetUniformLocation(shader.shaderID, "uTexture");
     static GLuint mvploc = glGetUniformLocation(shader.shaderID, "mvp");
 
-    glUniformMatrix4fv(mvploc, glm::value_ptr(cam.mvp));
+    glUniformMatrix4fv(mvploc, 1, GL_FALSE, glm::value_ptr(cam.mvp));
 
     glUniform1f(timeloc, glfwGetTime());
 
@@ -212,25 +212,13 @@ void main() {
         glBindVertexArray(vao);
         glGenBuffers(1, &vbo);
 
-    } else
-    {
-        glBindVertexArray(vao);
-    }
-
-    static int lastw = 0;
-    static int lasth = 0;
-    if (lastw != SWIDTH || lasth != SHEIGHT)
-    {
-        lastw = SWIDTH;
-        lasth = SHEIGHT;
-
-        auto uvheight = (float)SHEIGHT / 1024.0f;
-        auto uvwidth = (float)SWIDTH / 1024.0f;
+        auto uvheight =  10000 / 300.0f;
+        auto uvwidth =  10000 / 500.0f;
 
 
         //We will have to figure out something to always have background in front of the camera. This is just for now
         auto halfbackgroundheight = 100.0f;
-        
+
         static std::vector<float> baseVertices = {
             -halfbackgroundheight, -halfbackgroundheight,     -uvwidth/2.f, -uvheight/2.f,
             -halfbackgroundheight, halfbackgroundheight,     -uvwidth/2.f, uvheight/2.f,
@@ -246,12 +234,18 @@ void main() {
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+    } else
+    {
+        glBindVertexArray(vao);
     }
+
+
 
     static GLuint texloc = glGetUniformLocation(shader.shaderID, "uTexture");
     static GLuint mvploc = glGetUniformLocation(shader.shaderID, "mvp");
 
-    glUniformMatrix4fv(mvploc, glm::value_ptr(cam.mvp));
+    glUniformMatrix4fv(mvploc, 1, GL_FALSE, glm::value_ptr(cam.mvp));
     
     texture.bind_to_unit(0);
     glUniform1i(texloc, 0);

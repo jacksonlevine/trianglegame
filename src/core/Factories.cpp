@@ -20,6 +20,6 @@ entt::entity makeTriGuy(entt::registry& reg, const glm::vec2& pos, float heading
     reg.emplace<Direction>(e, heading, headingToDirection(heading));
     reg.emplace<Position>(e, pos);
     reg.emplace<AnimState>(e, IDLE);
-    //reg.emplace<Wandering>(e, 0.0f);
+    reg.emplace<Wandering>(e, 0.0f);
     return e;
 }

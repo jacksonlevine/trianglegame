@@ -12,7 +12,7 @@ void Game::init()
 {
     rand.seed(std::random_device{}());
 
-    std::uniform_real_distribution<float> distrib(-1.0f, 1.0f);
+    std::uniform_real_distribution<float> distrib(-50.0f, 50.f);
     std::uniform_real_distribution<float> hdistrib(0.0f, 0.9999f);
     for (int i = 0; i < 100; i++)
     {
@@ -26,7 +26,7 @@ void Game::init()
     //initialize 3d camera facing game surface (surface spans XY, toward the camera Z, away -Z)
     camera.transform.position = glm::vec3(0, 0, 20);
     camera.updateProjection(SWIDTH, SHEIGHT, 90.0f);
-    camera.updateWithYawPitch(0.0f, -89.9f)
+    camera.updateWithYawPitch(-90.0f, 0.f);
 }
 
 void Game::input(std::optional<int> input)

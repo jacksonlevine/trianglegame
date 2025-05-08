@@ -19,8 +19,8 @@ App::~App()
 
 void SC_C(GLFWwindow* window, double xoffset, double yoffset)
 {
-    auto *game = reinterpret_cast<Game>(glfwGetWindowUserPointer(window));
-    game->camera.transform.position.z = std::min(50.0f, std::max(1.0f, game->camera.transform.position.z + (float)yoffset * 0.2f));
+    auto* game = reinterpret_cast<Game*>(glfwGetWindowUserPointer(window));
+    game->camera.transform.position.z = std::min(50.0f, std::max(1.0f, game->camera.transform.position.z + (float)yoffset * aDeltaTime * 30.0f));
 }
 
 enum class INPUTS : uint8_t {
@@ -50,24 +50,24 @@ void K_C(GLFWwindow* window, int key, int scancode, int action, int mods)
     }
 
 
-    auto *game = reinterpret_cast<Game>(glfwGetWindowUserPointer(window));
+    auto *game = reinterpret_cast<Game*>(glfwGetWindowUserPointer(window));
 
 
     if(inputs[(int)INPUTS::UP])
     {
-        game->camera.transform.position += glm::vec3(0,1,0) * aDeltaTime * 3.0f;
+        game->camera.transform.position += glm::vec3(0,1,0) * aDeltaTime * 15.0f;
     }
     if(inputs[(int)INPUTS::DOWN])
     {
-        game->camera.transform.position += glm::vec3(0,-1,0) * aDeltaTime * 3.0f;
+        game->camera.transform.position += glm::vec3(0,-1,0) * aDeltaTime * 15.0f;
     }
     if(inputs[(int)INPUTS::LEFT])
     {
-        game->camera.transform.position += glm::vec3(-1,0,0) * aDeltaTime * 3.0f;
+        game->camera.transform.position += glm::vec3(-1,0,0) * aDeltaTime * 15.0f;
     }
     if(inputs[(int)INPUTS::RIGHT])
     {
-        game->camera.transform.position += glm::vec3(1,0,0) * aDeltaTime * 3.0f;
+        game->camera.transform.position += glm::vec3(1,0,0) * aDeltaTime * 15.0f;
     }
 
 

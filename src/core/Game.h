@@ -14,6 +14,7 @@ public:
     bool logic();
     void render();
 
+    jl::Camera camera;
 private:
     enum class State {
         playing,
@@ -24,7 +25,7 @@ private:
     std::mt19937 rand;
     State state = State::playing;
     entt::registry reg;
-    jl::Camera camera;
+
 };
 
 
