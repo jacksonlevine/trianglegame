@@ -53,4 +53,18 @@ extern int SHEIGHT;
 
 extern float aDeltaTime;
 
+enum class INPUTS : uint8_t {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+    MIDBHELD,
+    FIRSTMIDB
+};
+
+using inputsType = std::bitset<6>;
+
+
+extern GLFWcursor* grabCursor;
+
 #endif //PRECOMPHEADER_H

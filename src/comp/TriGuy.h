@@ -5,6 +5,9 @@
 #ifndef TRIGUY_H
 #define TRIGUY_H
 
-struct TriGuy {};
+struct TriGuy
+{
+    float acceptableObservingDistance;
+};
 
 #endif //TRIGUY_H

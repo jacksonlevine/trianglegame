@@ -10,6 +10,8 @@ int SHEIGHT = 1024;
 
 float aDeltaTime = 0.0f;
 
+GLFWcursor* grabCursor = nullptr;
+
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION

@@ -20,8 +20,10 @@ void Game::init()
         float y = distrib(rand);
         float heading = hdistrib(rand);
 
-        makeTriGuy(reg, glm::vec2(x,y), heading);
+        makeTriGuy(reg, glm::vec2(x,y), heading, rand);
     }
+
+    makeMusicMachine(reg, glm::ivec2(0,0));
 
     //initialize 3d camera facing game surface (surface spans XY, toward the camera Z, away -Z)
     camera.transform.position = glm::vec3(0, 0, 20);
@@ -29,9 +31,24 @@ void Game::init()
     camera.updateWithYawPitch(-90.0f, 0.f);
 }
 
-void Game::input(std::optional<int> input)
+void Game::input(inputsType& inputs)
 {
-
+    if(inputs[(int)INPUTS::UP])
+    {
+        camera.transform.position += glm::vec3(0,1,0) * aDeltaTime * 10.0f;
+    }
+    if(inputs[(int)INPUTS::DOWN])
+    {
+        camera.transform.position += glm::vec3(0,-1,0) * aDeltaTime * 10.0f;
+    }
+    if(inputs[(int)INPUTS::LEFT])
+    {
+        camera.transform.position += glm::vec3(-1,0,0) * aDeltaTime * 10.0f;
+    }
+    if(inputs[(int)INPUTS::RIGHT])
+    {
+        camera.transform.position += glm::vec3(1,0,0) * aDeltaTime * 10.0f;
+    }
 }
 
 bool Game::logic()
@@ -53,4 +70,6 @@ void Game::render()
     renderBackground(reg, camera);
     doTriBehaviors(reg, deltaTime, rand);
     renderTriGuys(reg, camera);
+    renderMusicMachines(reg, camera);
+
 }

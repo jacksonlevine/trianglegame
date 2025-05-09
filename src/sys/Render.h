@@ -12,4 +12,6 @@ void renderBackground(entt::registry &reg, const jl::Camera& cam);
 
 void renderTriGuys(entt::registry &reg, const jl::Camera& cam);
 
+void renderMusicMachines(entt::registry &reg, const jl::Camera& cam);
+
 #endif //RENDER_H

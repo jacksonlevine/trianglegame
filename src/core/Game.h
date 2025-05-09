@@ -10,7 +10,7 @@
 class Game {
 public:
     void init();
-    void input(std::optional<int> input); //glfw key
+    void input(inputsType& inputs); //glfw key
     bool logic();
     void render();
 

@@ -8,9 +8,8 @@
 #include "../PrecompHeader.h"
 
 
-entt::entity makeTriGuy(entt::registry& reg, const glm::vec2& pos, float heading);
+entt::entity makeTriGuy(entt::registry& reg, const glm::vec2& pos, float heading, std::mt19937& rng);
 
-
-
+entt::entity makeMusicMachine(entt::registry& reg, const glm::ivec2& pos);
 
 #endif //FACTORIES_H

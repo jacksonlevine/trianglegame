@@ -9,9 +9,14 @@
 
 enum AnimName : uint8_t
 {
+    //TriGuy anims
     DANCE,
     IDLE,
-    WALK
+    WALK,
+
+    //MusicMachine anims
+    MM_DANCE = DANCE,
+    MM_IDLE = IDLE,
 };
 
 struct AnimState {

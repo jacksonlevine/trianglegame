@@ -83,6 +83,7 @@ add_executable(TriangleGame
         src/comp/Behaviors.h
         src/sys/TriGuyBehaviors.cpp
         src/sys/TriGuyBehaviors.h
+        src/comp/MusicMachine.h
 )
 
 

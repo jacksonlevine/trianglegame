@@ -17,22 +17,40 @@ App::~App()
 }
 
 
+GLFWcursor* loadGrabbingCursor(const char* filename, int hotspotX, int hotspotY) {
+    int width, height, channels;
+    unsigned char* data = stbi_load(filename, &width, &height, &channels, 4); // force RGBA
+
+    if (!data) {
+        fprintf(stderr, "Failed to load cursor image: %s\n", filename);
+        return nullptr;
+    }
+
+    GLFWimage image;
+    image.width = width;
+    image.height = height;
+    image.pixels = data;
+
+    GLFWcursor* cursor = glfwCreateCursor(&image, hotspotX, hotspotY);
+    stbi_image_free(data);
+    return cursor;
+}
+
+
+
+
 void SC_C(GLFWwindow* window, double xoffset, double yoffset)
 {
     auto* game = reinterpret_cast<Game*>(glfwGetWindowUserPointer(window));
-    game->camera.transform.position.z = std::min(50.0f, std::max(1.0f, game->camera.transform.position.z + (float)yoffset * aDeltaTime * 30.0f));
+    game->camera.transform.position.z = std::min(50.0f, std::max(1.0f, game->camera.transform.position.z - (float)yoffset));
 }
 
-enum class INPUTS : uint8_t {
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN
-};
+
+static inputsType inputs(0);
 void K_C(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 
-    static std::bitset<4> inputs(0);
+
     if(key == GLFW_KEY_A)
     {
         inputs[(int)INPUTS::LEFT] = action ? 1 : 0;
@@ -54,31 +72,54 @@ void K_C(GLFWwindow* window, int key, int scancode, int action, int mods)
     }
 
 
-    auto *game = reinterpret_cast<Game*>(glfwGetWindowUserPointer(window));
 
 
-    if(inputs[(int)INPUTS::UP])
-    {
-        game->camera.transform.position += glm::vec3(0,1,0) * aDeltaTime * 15.0f;
-    }
-    if(inputs[(int)INPUTS::DOWN])
-    {
-        game->camera.transform.position += glm::vec3(0,-1,0) * aDeltaTime * 15.0f;
-    }
-    if(inputs[(int)INPUTS::LEFT])
-    {
-        game->camera.transform.position += glm::vec3(-1,0,0) * aDeltaTime * 15.0f;
-    }
-    if(inputs[(int)INPUTS::RIGHT])
-    {
-        game->camera.transform.position += glm::vec3(1,0,0) * aDeltaTime * 15.0f;
-    }
 
+}
 
+static int cursorposlastx = 0, cursorposlasty = 0;
+void MB_C(GLFWwindow* window, int button, int action, int mods)
+{
+        if (button == GLFW_MOUSE_BUTTON_3)
+        {
+            if (action == GLFW_PRESS)
+            {
+                glfwSetCursor(window, grabCursor);
+                inputs[(int)INPUTS::FIRSTMIDB] = 1;
+                inputs[(int)INPUTS::MIDBHELD] = 1;
+            }
+            else if (action == GLFW_RELEASE)
+            {
+                glfwSetCursor(window, nullptr);
+                inputs[(int)INPUTS::MIDBHELD] = 0;
+                inputs[(int)INPUTS::FIRSTMIDB] = 1;
+            }
+        }
 }
 void CP_C(GLFWwindow* window, double xpos, double ypos)
 {
 
+
+    if (inputs[(int)INPUTS::MIDBHELD])
+    {
+
+        if (inputs[(int)INPUTS::FIRSTMIDB])
+        {
+            inputs[(int)INPUTS::FIRSTMIDB] = 0;
+            cursorposlastx = xpos;
+            cursorposlasty = ypos;
+        }
+
+        auto* game = reinterpret_cast<Game*>(glfwGetWindowUserPointer(window));
+        auto xoffset = xpos - cursorposlastx;
+        auto yoffset = ypos - cursorposlasty;
+
+        cursorposlastx = xpos;
+        cursorposlasty = ypos;
+
+        game->camera.transform.position.x += -(xoffset / SWIDTH) * 15.0f;
+        game->camera.transform.position.y += (yoffset / SHEIGHT) * 15.0f;
+    }
 }
 
 void App::run()
@@ -97,13 +138,14 @@ void App::run()
     glfwSetScrollCallback(window, SC_C);
     glfwSetKeyCallback(window, K_C);
     glfwSetCursorPosCallback(window, CP_C);
+    glfwSetMouseButtonCallback(window, MB_C);
 
     glViewport(0, 0, SWIDTH, SHEIGHT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(0.3f, 0.3f, 0.6f, 1.0f);
 
-
+    grabCursor = loadGrabbingCursor("resourcestoembed/grabcursor.png", 27, 25);
     Game game;
     game.init();
 
@@ -113,6 +155,11 @@ void App::run()
     {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+
+
+        game.input(inputs);
         game.logic();
         game.render();
 

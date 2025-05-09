@@ -7,6 +7,7 @@
 #include "../comp/AnimState.h"
 #include "../comp/Behaviors.h"
 #include "../comp/Direction.h"
+#include "../comp/MusicMachine.h"
 #include "../comp/Position.h"
 #include "../comp/TriGuy.h"
 #include "../util/DirHelpers.h"
@@ -73,6 +74,58 @@ void doTriBehaviors(entt::registry& registry, float deltaTime, std::mt19937& rng
         }
     }
 
+    //Notice active music machines
+    {
+        const auto guyview = registry.view<TriGuy, Position>();
+        const auto machineview = registry.view<MusicMachine, AnimState, Position>();
+        for (auto entity : guyview)
+        {
+            auto& [position] = registry.get<Position>(entity);
+
+            bool foundmachine = false;
+            for (auto mmentity : machineview)
+            {
+                auto& mmanimState = registry.get<AnimState>(mmentity);
+                if (mmanimState.animname == MM_DANCE)
+                {
+                    auto& [mmposition] = registry.get<Position>(mmentity);
+                    if (distance(mmposition, position) < 125.0f)
+                    {
+                        foundmachine = true;
+                        if (!registry.all_of<FocusPoint>(entity))
+                        {
+                            registry.emplace<FocusPoint>(entity, mmposition);
+                        }
+                        if (!registry.all_of<DanceMode>(entity))
+                        {
+                            registry.emplace<DanceMode>(entity);
+                        }
+
+                        if (registry.all_of<WalkMode>(entity))
+                        {
+                            registry.remove<WalkMode>(entity);
+                        }
+                        if (registry.all_of<Wandering>(entity))
+                        {
+                            registry.remove<Wandering>(entity);
+                        }
+                        break;
+                    }
+                }
+
+            }
+
+            if (!foundmachine)
+            {
+                if (!registry.all_of<Wandering>(entity))
+                {
+                    registry.emplace<Wandering>(entity);
+                }
+            }
+
+        }
+    }
+
     //Dance the dancers
     {
         const auto view = registry.view<TriGuy, DanceMode, Position, AnimState, FocusPoint, Direction>();
@@ -82,7 +135,9 @@ void doTriBehaviors(entt::registry& registry, float deltaTime, std::mt19937& rng
             auto & position = view.get<Position>(entity);
             auto & animState = view.get<AnimState>(entity);
             auto & direction = view.get<Direction>(entity);
-            if (glm::distance(focusPoint.point, position.position) < 3.0f)
+            auto & triguy = view.get<TriGuy>(entity);
+
+            if (glm::distance(focusPoint.point, position.position) < triguy.acceptableObservingDistance)
             {
                 animState.animname = DANCE;
             } else
