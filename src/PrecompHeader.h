@@ -46,7 +46,10 @@
 #include <cereal/types/array.hpp>
 #include <tbb/tbb.h>
 #include <tbb/concurrent_unordered_set.h>
-
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <sndfile.h>
+#include <aubio/aubio.h>
 
 extern int SWIDTH;
 extern int SHEIGHT;
@@ -66,5 +69,9 @@ using inputsType = std::bitset<6>;
 
 
 extern GLFWcursor* grabCursor;
+
+class AudioContext;
+
+extern AudioContext* audio;
 
 #endif //PRECOMPHEADER_H

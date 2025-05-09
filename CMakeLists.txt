@@ -35,6 +35,7 @@ find_path(TINYGLTF_INCLUDE_DIRS "tiny_gltf.h")
 find_package(EnTT CONFIG REQUIRED)
 # this is heuristically generated, and may not be correct
 find_package(rapidcheck CONFIG REQUIRED)
+find_package(Aubio CONFIG REQUIRED)
 
 
 
@@ -84,11 +85,13 @@ add_executable(TriangleGame
         src/sys/TriGuyBehaviors.cpp
         src/sys/TriGuyBehaviors.h
         src/comp/MusicMachine.h
+        src/core/AudioContext.cpp
+        src/core/AudioContext.h
 )
 
 
 target_link_libraries(TriangleGame PRIVATE OpenAL::OpenAL)
-
+target_link_libraries(TriangleGame PRIVATE Aubio::aubio)
 
 function(add_common_libraries target)
 

@@ -6,6 +6,9 @@
 
 #include "Game.h"
 #include "../PrecompHeader.h"
+
+#include "AudioContext.h"
+AudioContext* audio = nullptr;
 App::App()
 {
 
@@ -122,6 +125,13 @@ void CP_C(GLFWwindow* window, double xpos, double ypos)
     }
 }
 
+void DROP_C(GLFWwindow* window, int count, const char** paths) {
+    if (count > 0) {
+        audio->load(paths[0]);
+        audio->play();
+    }
+}
+
 void App::run()
 {
     glfwInit();
@@ -139,6 +149,7 @@ void App::run()
     glfwSetKeyCallback(window, K_C);
     glfwSetCursorPosCallback(window, CP_C);
     glfwSetMouseButtonCallback(window, MB_C);
+    glfwSetDropCallback(window, DROP_C);
 
     glViewport(0, 0, SWIDTH, SHEIGHT);
     glEnable(GL_BLEND);
@@ -146,6 +157,8 @@ void App::run()
     glClearColor(0.3f, 0.3f, 0.6f, 1.0f);
 
     grabCursor = loadGrabbingCursor("resourcestoembed/grabcursor.png", 27, 25);
+    audio = new AudioContext();
+
     Game game;
     game.init();
 

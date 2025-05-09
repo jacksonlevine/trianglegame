@@ -12,6 +12,7 @@
         "entt",
         "cereal",
         "tbb",
-        "rapidcheck"
+        "rapidcheck",
+        "aubio"
     ]
 }
